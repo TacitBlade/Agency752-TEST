@@ -3,7 +3,7 @@ import pandas as pd
 import openpyxl
 from io import BytesIO
 
-git add requirements.txt agent_beans_app.py
+git add requirements.txt
 git commit -m "Fix: correct openpyxl import syntax and ensure dependency version"
 git push origin main
 
