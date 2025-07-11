@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 from io import BytesIO
@@ -76,3 +77,4 @@ if submitted:
         st.subheader("📊 Agent Totals Summary")
         for row in results:
             st.metric(label=f"{row['Agent']}", value=f"{row['Total Beans']:.2f} Beans")
+
