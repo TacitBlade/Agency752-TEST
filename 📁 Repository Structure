@@ -1,0 +1,3 @@
+agent-bean-calculator/
+├── agent_beans_app.py
+└── requirements.txt
