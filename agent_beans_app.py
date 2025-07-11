@@ -3,11 +3,6 @@ import pandas as pd
 import openpyxl
 from io import BytesIO
 
-git add requirements.txt
-git commit -m "Fix: correct openpyxl import syntax and ensure dependency version"
-git push origin main
-
-
 def calculate_total_beans(beans_earned, salary_usd):
     salary_beans = salary_usd * 210
     commission = beans_earned * 0.05
