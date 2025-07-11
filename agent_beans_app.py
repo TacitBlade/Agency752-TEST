@@ -45,5 +45,3 @@ if submitted:
     df = pd.DataFrame(results)
     st.success("✅ Calculations complete!")
     st.dataframe(df)
-
-   )
