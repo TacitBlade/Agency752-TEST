@@ -34,17 +34,8 @@ def convert_beans_to_diamonds(beans):
 # Streamlit app configuration
 st.set_page_config(page_title="Agent Bean Calculator", layout="centered")
 
-
-# Upload logo
-uploaded_logo = st.file_uploader("Upload your logo", type=["png", "jpg", "jpeg"])
-
 # Enter custom app name
 custom_name = st.text_input("Enter Your App Name", value="🎯 Agent Bean Calculator")
-
-# Show logo if uploaded
-if uploaded_logo:
-    image = Image.open(uploaded_logo)
-    st.image(image, width=150)
 
 # Display custom title
 st.title(custom_name)
