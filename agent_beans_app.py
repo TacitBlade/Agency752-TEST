@@ -47,11 +47,4 @@ if submitted:
     st.success("✅ Calculations complete!")
     st.dataframe(df)
 
-    buffer = BytesIO()
-    df.to_excel(buffer, index=False, engine="openpyxl")
-    st.download_button(
-        "📥 Download Excel File",
-        data=buffer.getvalue(),
-        file_name="agent_beans_summary.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+   )
