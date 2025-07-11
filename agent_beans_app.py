@@ -10,6 +10,27 @@ def calculate_total_beans(beans_earned, salary_usd):
     total = salary_beans + commission
     return salary_beans, commission, total
 
+# Function to convert beans to diamonds
+def convert_beans_to_diamonds(beans):
+    conversions = [
+        {"diamonds": 3045, "beans": 10999},
+        {"diamonds": 1105, "beans": 3999},
+        {"diamonds": 275,  "beans": 999},
+        {"diamonds": 29,   "beans": 109},
+        {"diamonds": 2,    "beans": 8}
+    ]
+    diamonds = 0
+    breakdown = []
+
+    for pack in conversions:
+        count = beans // pack["beans"]
+        if count > 0:
+            diamonds += count * pack["diamonds"]
+            beans -= count * pack["beans"]
+            breakdown.append(f"{int(count)}×{pack['diamonds']}d")
+
+    return diamonds, ', '.join(breakdown)
+
 # Streamlit app configuration
 st.set_page_config(page_title="Agent Bean Calculator", layout="centered")
 st.title("🎯 Agent Bean Calculator")
@@ -44,13 +65,16 @@ if submitted:
                 agent["beans_earned"],
                 agent["salary_usd"]
             )
+            diamonds, breakdown = convert_beans_to_diamonds(total)
             results.append({
                 "Agent": agent["name"],
                 "Beans Earned": round(agent["beans_earned"], 2),
                 "Salary (USD)": round(agent["salary_usd"], 2),
                 "Salary in Beans": round(salary_beans, 2),
                 "5% Commission": round(commission, 2),
-                "Total Beans": round(total, 2)
+                "Total Beans": round(total, 2),
+                "Diamonds": diamonds,
+                "Diamond Breakdown": breakdown
             })
 
         df = pd.DataFrame(results)
@@ -61,7 +85,9 @@ if submitted:
 
         # Summary metric
         total_all = df["Total Beans"].sum()
+        total_diamonds = df["Diamonds"].sum()
         st.info(f"💰 **Total Beans Across All Agents:** {round(total_all, 2)}")
+        st.success(f"💎 **Total Diamonds for All Agents:** {total_diamonds}")
 
         # Download option
         output = BytesIO()
@@ -77,4 +103,5 @@ if submitted:
         st.subheader("📊 Agent Totals Summary")
         for row in results:
             st.metric(label=f"{row['Agent']}", value=f"{row['Total Beans']:.2f} Beans")
+
 
