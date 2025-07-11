@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 from io import BytesIO
@@ -53,19 +52,16 @@ with st.form("bean_calc_form"):
 
     submitted = st.form_submit_button("Calculate")
 
-# Output calculation
+# Process form data
 if submitted:
-    # Basic validation
     if any(agent["name"] == "" for agent in agents_input):
         st.error("🚫 Please enter a name for every agent.")
     else:
         results = []
         for agent in agents_input:
-            salary_beans, commission, total = calculate_total_beans(
-                agent["beans_earned"],
-                agent["salary_usd"]
-            )
+            salary_beans, commission, total = calculate_total_beans(agent["beans_earned"], agent["salary_usd"])
             diamonds, breakdown = convert_beans_to_diamonds(total)
+
             results.append({
                 "Agent": agent["name"],
                 "Beans Earned": int(agent["beans_earned"]) if agent["beans_earned"].is_integer() else round(agent["beans_earned"], 2),
@@ -77,19 +73,20 @@ if submitted:
                 "Diamond Breakdown": breakdown
             })
 
-        df = pd.DataFrame(results)
+        # Remove breakdown from main table
+        df = pd.DataFrame([{k: v for k, v in r.items() if k != "Diamond Breakdown"} for r in results])
         df = df.sort_values(by="Total Beans", ascending=False)
 
         st.success("✅ Calculations complete!")
         st.dataframe(df.style.set_properties(**{'text-align': 'center'}), use_container_width=True)
 
-        # Summary metric
+        # Totals
         total_all = df["Total Beans"].sum()
         total_diamonds = df["Diamonds"].sum()
         st.info(f"💰 **Total Beans Across All Agents:** {int(total_all) if total_all.is_integer() else round(total_all, 2)}")
         st.success(f"💎 **Total Diamonds for All Agents:** {total_diamonds}")
 
-        # Download option
+        # Excel download
         output = BytesIO()
         df.to_excel(output, index=False, sheet_name='Agent Beans')
         st.download_button(
@@ -99,8 +96,9 @@ if submitted:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-        # Optional metrics per agent
+        # Per-agent breakdown
         st.subheader("📊 Agent Totals Summary")
         for row in results:
-            bean_value = int(row['Total Beans']) if isinstance(row['Total Beans'], (int, float)) and row['Total Beans'] == int(row['Total Beans']) else round(row['Total Beans'], 2)
-            st.metric(label=f"{row['Agent']}", value=f"{bean_value} Beans")
+            bean_value = int(row['Total Beans']) if row['Total Beans'] == int(row['Total Beans']) else round(row['Total Beans'], 2)
+            st.metric(label=row['Agent'], value=f"{bean_value} Beans / {row['Diamonds']} Diamonds")
+            st.caption(f"💎 Breakdown: {row['Diamond Breakdown']}")
