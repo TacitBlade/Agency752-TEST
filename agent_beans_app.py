@@ -50,7 +50,7 @@ with st.form("bean_calc_form"):
         beans_earned = st.number_input("Beans Earned by Host", key=f"beans_{i}")
 
         # Salary dropdown or custom
-        predefined_salaries = [5k=23, 23, 45, 67, 89, 112, 134, 156, 178, 200, 221, 243, 263, 281, 361, 525, 735, 945, 1220, 1613, 2000, 2950, 3925, 5900, 7650, 9200, 10200,  "Custom" ]
+        predefined_salaries = [23, 23, 45, 67, 89, 112, 134, 156, 178, 200, 221, 243, 263, 281, 361, 525, 735, 945, 1220, 1613, 2000, 2950, 3925, 5900, 7650, 9200, 10200,  "Custom" ]
         selected_salary = st.selectbox(
             "Select Basic Salary (USD)",
             options=predefined_salaries,
