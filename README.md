@@ -1,2 +1,3 @@
-# Agent-Bean-Calculator
-Beans calculator for working out agents commission
+openpyxl>=3.1.0
+streamlit
+
