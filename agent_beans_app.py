@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
+from PIL import image
 
 # Function to calculate salary in beans, commission, and total
 def calculate_total_beans(beans_earned, salary_usd):
@@ -32,7 +33,17 @@ def convert_beans_to_diamonds(beans):
 
 # Streamlit app configuration
 st.set_page_config(page_title="Agent Bean Calculator", layout="centered")
-st.title("🎯 Agent Bean Calculator")
+# Upload logo
+uploaded_logo = st.file_uploade("Enter Your App Name", value="🎯 Agent Bean Calculator")
+# Enter custom name
+custom_name = st.text_input("Enter your custom app name", value="🎯 Agent Bean Calculator")
+
+# Display the logo and custom name
+if uploaded_logo:
+    image = Image.open(uploaded_logo)
+    st.image(image, width=150)  # Adjust width as needed
+
+st.title(custom_name)
 
 # Form input
 with st.form("bean_calc_form"):
