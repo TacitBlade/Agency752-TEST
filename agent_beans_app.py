@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import openpyxl
+import openpyxl>=3.1.0
 from io import BytesIO
 
 def calculate_total_beans(beans_earned, salary_usd):
