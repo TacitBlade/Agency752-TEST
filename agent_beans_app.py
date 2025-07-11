@@ -68,12 +68,12 @@ if submitted:
             diamonds, breakdown = convert_beans_to_diamonds(total)
             results.append({
                 "Agent": agent["name"],
-                "Beans Earned": round(agent["beans_earned"], 2),
-                "Salary (USD)": round(agent["salary_usd"], 2),
-                "Salary in Beans": round(salary_beans, 2),
-                "5% Commission": round(commission, 2),
-                "Total Beans": round(total, 2),
-                "Diamonds": diamonds,
+                "Beans Earned": int(agent["beans_earned"]) if agent["beans_earned"].is_integer() else round(agent["beans_earned"], 2),
+                "Salary (USD)": int(agent["salary_usd"]) if agent["salary_usd"].is_integer() else round(agent["salary_usd"], 2),
+                "Salary in Beans": int(salary_beans) if salary_beans.is_integer() else round(salary_beans, 2),
+                "5% Commission": int(commission) if commission.is_integer() else round(commission, 2),
+                "Total Beans": int(total) if total.is_integer() else round(total, 2),
+                "Diamonds": int(diamonds),
                 "Diamond Breakdown": breakdown
             })
 
@@ -86,7 +86,7 @@ if submitted:
         # Summary metric
         total_all = df["Total Beans"].sum()
         total_diamonds = df["Diamonds"].sum()
-        st.info(f"💰 **Total Beans Across All Agents:** {round(total_all, 2)}")
+        st.info(f"💰 **Total Beans Across All Agents:** {int(total_all) if total_all.is_integer() else round(total_all, 2)}")
         st.success(f"💎 **Total Diamonds for All Agents:** {total_diamonds}")
 
         # Download option
@@ -102,4 +102,5 @@ if submitted:
         # Optional metrics per agent
         st.subheader("📊 Agent Totals Summary")
         for row in results:
-            st.metric(label=f"{row['Agent']}", value=f"{row['Total Beans']:.2f} Beans")
+            bean_value = int(row['Total Beans']) if isinstance(row['Total Beans'], (int, float)) and row['Total Beans'] == int(row['Total Beans']) else round(row['Total Beans'], 2)
+            st.metric(label=f"{row['Agent']}", value=f"{bean_value} Beans")
