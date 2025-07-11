@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
-from PIL import image
+from pillow import image
 
 # Function to calculate salary in beans, commission, and total
 def calculate_total_beans(beans_earned, salary_usd):
