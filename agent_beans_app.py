@@ -1,7 +1,44 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
-from PIL import Image
+
+# Tiered salary structure
+TIERED_SALARY = [
+    (6000000, 10200),
+    (5000000, 9200),
+    (4000000, 7650),
+    (3000000, 5900),
+    (2000000, 3925),
+    (1500000, 2950),
+    (1000000, 2000),
+    (800000, 1613),
+    (600000, 1220),
+    (450000, 945),
+    (350000, 735),
+    (250000, 525),
+    (170000, 361),
+    (130000, 281),
+    (120000, 263),
+    (110000, 243),
+    (100000, 221),
+    (90000, 200),
+    (80000, 178),
+    (70000, 156),
+    (60000, 134),
+    (50000, 112),
+    (40000, 89),
+    (30000, 67),
+    (20000, 45),
+    (10000, 23),
+    (5000, 23),
+    (0, 0)
+]
+
+def get_salary_usd(beans_earned):
+    for threshold, salary in TIERED_SALARY:
+        if beans_earned >= threshold:
+            return salary
+    return 0
 
 # Function to calculate salary in beans, commission, and total
 def calculate_total_beans(beans_earned, salary_usd):
@@ -32,54 +69,31 @@ def convert_beans_to_diamonds(beans):
     return diamonds, ', '.join(breakdown)
 
 # Streamlit app configuration
-st.set_page_config(page_title="Agent Bean Calculator", layout="centered")
-
-# Enter custom app name
-custom_name = st.text_input("Enter Your App Name", value="🎯 Agent Bean Calculator")
-
-# Display custom title
-st.title(custom_name)
+st.set_page_config(page_title="Agency Commission Calculator", layout="centered")
+st.title("🎯 Agency Commission Calculator")
 
 # Form input
 with st.form("bean_calc_form"):
-    num_agents = st.number_input("How many agents?", min_value=1, step=1)
+    num_agents = st.number_input("How many Hosts?", min_value=1, step=1)
     agents_input = []
+
     for i in range(int(num_agents)):
-        st.markdown(f"#### Agent {i+1}")
-        name = st.text_input(f"Name", key=f"name_{i}")
-        beans_earned = st.number_input("Beans Earned by Host", key=f"beans_{i}")
+        with st.expander(f"🧝 Host {i+1} Details", expanded=True):
+            name = st.text_input("Name", key=f"name_{i}")
+            beans_earned = st.number_input("Beans🫘 Earned by Host 🎭", min_value=0, step=100, key=f"beans_{i}")
+            salary_usd = get_salary_usd(beans_earned)
+            agents_input.append({
+                "name": name.strip(),
+                "beans_earned": beans_earned,
+                "salary_usd": salary_usd
+            })
 
-        # Salary dropdown or custom
-        predefined_salaries = [23, 23, 45, 67, 89, 112, 134, 156, 178, 200, 221, 243, 263, 281, 361, 525, 735, 945, 1220, 1613, 2000, 2950, 3925, 5900, 7650, 9200, 10200,  "Custom" ]
-        selected_salary = st.selectbox(
-            "Select Basic Salary (USD)",
-            options=predefined_salaries,
-            index=2,
-            key=f"salary_select_{i}",
-        )
-
-        if selected_salary == "Custom":
-            salary_usd = st.number_input(
-                "Enter custom salary (USD)",
-                min_value=0.0,
-                step=1.0,
-                key=f"custom_salary_{i}"
-            )
-        else:
-            salary_usd = selected_salary
-
-        agents_input.append({
-            "name": name,
-            "beans_earned": beans_earned,
-            "salary_usd": salary_usd
-        })
     submitted = st.form_submit_button("Calculate")
-
 
 # Process form data
 if submitted:
     if any(agent["name"] == "" for agent in agents_input):
-        st.error("🚫 Please enter a name for every agent.")
+        st.error("🚫 Please enter a name for every Host.")
     else:
         results = []
         for agent in agents_input:
@@ -88,11 +102,11 @@ if submitted:
 
             results.append({
                 "Agent": agent["name"],
-                "Beans Earned": int(agent["beans_earned"]) if agent["beans_earned"].is_integer() else round(agent["beans_earned"], 2),
-                "Salary (USD)": int(agent["salary_usd"]) if agent["salary_usd"].is_integer() else round(agent["salary_usd"], 2),
-                "Salary in Beans": int(salary_beans) if salary_beans.is_integer() else round(salary_beans, 2),
-                "5% Commission": int(commission) if commission.is_integer() else round(commission, 2),
-                "Total Beans": int(total) if total.is_integer() else round(total, 2),
+                "Beans Earned": int(agent["beans_earned"]),
+                "Salary (USD)": int(agent["salary_usd"]),
+                "Salary in Beans": int(salary_beans),
+                "5% Commission": int(commission),
+                "Total Beans": int(total),
                 "Diamonds": int(diamonds),
                 "Diamond Breakdown": breakdown
             })
@@ -107,22 +121,26 @@ if submitted:
         # Totals
         total_all = df["Total Beans"].sum()
         total_diamonds = df["Diamonds"].sum()
-        st.info(f"💰 **Total Beans Across All Agents:** {int(total_all) if total_all.is_integer() else round(total_all, 2)}")
-        st.success(f"💎 **Total Diamonds for All Agents:** {total_diamonds}")
+        st.info(f"💰 **Total Beans Across All Hosts:** {int(total_all)}")
+        st.success(f"💎 **Total Diamonds for Agency:** {total_diamonds}")
 
         # Excel download
         output = BytesIO()
         df.to_excel(output, index=False, sheet_name='Agent Beans')
         st.download_button(
-            "📥 Download Results as Excel",
+            "📅 Download Results as Excel",
             output.getvalue(),
             file_name="agent_bean_results.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
         # Per-agent breakdown
-        st.subheader("📊 Agent Totals Summary")
+        st.subheader("📊 Agency Totals Summary")
         for row in results:
-            bean_value = int(row['Total Beans']) if row['Total Beans'] == int(row['Total Beans']) else round(row['Total Beans'], 2)
-            st.metric(label=row['Agent'], value=f"{bean_value} Beans / {row['Diamonds']} Diamonds")
+            st.metric(label=row['Agent'], value=f"{row['Total Beans']} Beans / {row['Diamonds']} Diamonds")
             st.caption(f"💎 Breakdown: {row['Diamond Breakdown']}")
+
+st.markdown(
+    "<div style='text-align: center; font-size: 14px; margin-top: 32px;'>© 2025 Alpha Agency & T Star Agency. All rights reserved.</div>",
+    unsafe_allow_html=True
+)
