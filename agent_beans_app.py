@@ -147,9 +147,7 @@ st.markdown(
 
 
 #!/usr/bin/env python3
-"""
-Beans to Diamonds Calculator (Streamlit version)
-"""
+
 
 import math
 from typing import Dict, Optional
