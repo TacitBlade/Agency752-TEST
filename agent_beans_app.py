@@ -14,29 +14,33 @@ pk_data = {
                       (100000, 3500), (120000, 4000)]
 }
 
-# Greedy breakdown logic
+# Reward calculation logic
 def reward_breakdown(pk_points):
     best_type = None
     best_win = 0
     best_steps = []
+    diamonds_used = 0
     remainder = pk_points
     for pk_type, rewards in pk_data.items():
         rewards_sorted = sorted(rewards, reverse=True)
         temp_points = pk_points
         temp_win = 0
         steps = []
+        temp_used = 0
         for cost, win in rewards_sorted:
             count = temp_points // cost
             if count:
                 temp_points -= count * cost
                 temp_win += count * win
+                temp_used += count * cost
                 steps.append((count, cost, win))
         if temp_win > best_win:
             best_win = temp_win
             best_type = pk_type
             best_steps = steps
+            diamonds_used = temp_used // 10
             remainder = temp_points
-    return best_type, best_win, best_steps, remainder
+    return best_type, best_win, best_steps, diamonds_used, remainder
 
 def breakdown_to_dataframe(steps):
     return pd.DataFrame([
@@ -63,15 +67,16 @@ diamonds = st.number_input("Enter your diamond amount", min_value=0, step=100)
 pk_points = diamonds * 10
 
 if diamonds:
-    pk_type, win_total, steps, remainder = reward_breakdown(pk_points)
-    remaining_diamonds = remainder // 10
+    pk_type, win_total, steps, diamonds_used, remainder = reward_breakdown(pk_points)
     df = breakdown_to_dataframe(steps)
     excel_data = convert_df_to_excel(df)
 
-    st.subheader("🎯 Optimal Strategy")
-    st.markdown(f"**Best PK Type:** {pk_type}")
-    st.markdown(f"**Total Win Points:** {win_total}")
-    st.markdown(f"**Unused Diamonds:** {remaining_diamonds}")
+    st.subheader("🎯 Optimization Summary")
+    st.markdown(f"**🏆 PK Type:** {pk_type}")
+    st.markdown(f"**💎 Diamonds Used:** {diamonds_used}")
+    st.markdown(f"**📈 PK Score (Used):** {diamonds_used * 10}")
+    st.markdown(f"**🫘 Total Win (Beans):** {win_total}")
+    st.markdown(f"**🔸 Unused Diamonds:** {remainder // 10}")
 
     st.subheader("📊 Reward Breakdown")
     st.dataframe(df, use_container_width=True)
@@ -83,4 +88,4 @@ if diamonds:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-    st.caption("Powered by openpyxl — export is clean and compatible.")
+    st.caption("All calculations based on max win logic using your available diamonds.")
