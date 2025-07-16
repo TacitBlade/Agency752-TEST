@@ -14,7 +14,7 @@ pk_data = {
                       (100000, 3500), (120000, 4000)]
 }
 
-# Reward calculation logic
+# Greedy breakdown logic
 def reward_breakdown(pk_points):
     best_type = None
     best_win = 0
@@ -41,21 +41,21 @@ def reward_breakdown(pk_points):
 def breakdown_to_dataframe(steps):
     return pd.DataFrame([
         {
-            "Count": count,
+            "Matches": count,
             "PK Points Used": count * cost,
             "Win per Match": win,
-            "Total Win": count * win
+            "Total Win Points": count * win
         }
         for count, cost, win in steps
     ])
 
 def convert_df_to_excel(df):
     output = BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='PK Breakdown')
     return output.getvalue()
 
-# Streamlit UI
+# UI
 st.set_page_config(page_title="PK Diamond Optimizer", layout="centered")
 st.title("PK Diamond Optimizer 💎")
 
@@ -65,17 +65,17 @@ pk_points = diamonds * 10
 if diamonds:
     pk_type, win_total, steps, remainder = reward_breakdown(pk_points)
     remaining_diamonds = remainder // 10
+    df = breakdown_to_dataframe(steps)
+    excel_data = convert_df_to_excel(df)
 
     st.subheader("🎯 Optimal Strategy")
     st.markdown(f"**Best PK Type:** {pk_type}")
     st.markdown(f"**Total Win Points:** {win_total}")
     st.markdown(f"**Unused Diamonds:** {remaining_diamonds}")
 
-    st.subheader("📊 Win Breakdown")
-    df = breakdown_to_dataframe(steps)
+    st.subheader("📊 Reward Breakdown")
     st.dataframe(df, use_container_width=True)
 
-    excel_data = convert_df_to_excel(df)
     st.download_button(
         label="📥 Download Breakdown as Excel",
         data=excel_data,
@@ -83,4 +83,4 @@ if diamonds:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-    st.caption("Calculated using greedy match logic — maximize win per cost across all PK types.")
+    st.caption("Powered by openpyxl — export is clean and compatible.")
